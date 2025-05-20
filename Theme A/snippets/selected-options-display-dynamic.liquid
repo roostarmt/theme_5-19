@@ -263,8 +263,16 @@
             });
             document.dispatchEvent(levelEvent);
             
-            // Hide this level item
-            levelItem.style.display = 'none';
+            // Toggle visibility instead of hiding
+            if (levelItem.classList.contains('inactive')) {
+              levelItem.classList.remove('inactive');
+              levelItem.classList.add('active');
+              this.textContent = 'Remove';
+            } else {
+              levelItem.classList.remove('active');
+              levelItem.classList.add('inactive');
+              this.textContent = 'Reactivate';
+            }
           });
           
           levelItem.appendChild(levelName);
@@ -272,133 +280,6 @@
           selectedLevelsContainer.appendChild(levelItem);
         });
       }
-      
-      // Populate selected colors
-      const selectedColorsGrid = document.getElementById('selected-colors-grid');
-      if (selectedColorsGrid && appState && colorSwatchesData) {
-        selectedColorsGrid.innerHTML = '';
-        
-        // Get color keys (C5, C4, C3, C2, C1, BG)
-        const colorKeys = Object.keys(appState.colorValues);
-        
-        // For each color, create a color item
-        colorKeys.forEach(colorKey => {
-          const colorValue = appState.colorValues[colorKey];
-          const keyA = `A${colorValue}`;
-          const keyB = `B${colorValue}`;
-          
-          const colorName = colorSwatchesData[keyA] || 'Unknown';
-          const hexColor = colorSwatchesData[keyB] || '#FFFFFF';
-          
-          const colorItem = document.createElement('div');
-          colorItem.className = 'color-item';
-          
-          const colorSwatch = document.createElement('div');
-          colorSwatch.className = 'color-swatch';
-          colorSwatch.style.backgroundColor = hexColor;
-          
-          const colorNameSpan = document.createElement('span');
-          colorNameSpan.className = 'color-name';
-          colorNameSpan.textContent = `${colorKey}: ${colorName}`;
-          
-          colorItem.appendChild(colorSwatch);
-          colorItem.appendChild(colorNameSpan);
-          selectedColorsGrid.appendChild(colorItem);
-        });
-      }
-      
-      // Set up checkout button
-      const checkoutButton = document.getElementById('selected-options-checkout-button');
-      if (checkoutButton) {
-        checkoutButton.addEventListener('click', function() {
-          // Add selected colors as line item properties before checkout
-          const colorKeys = Object.keys(appState.colorValues);
-          const colorProperties = {};
-          
-          // Create line item properties for each color choice
-          colorKeys.forEach(colorKey => {
-            const colorValue = appState.colorValues[colorKey];
-            const keyA = `A${colorValue}`;
-            const keyB = `B${colorValue}`;
-            
-            // Get color name and hex
-            const colorName = colorSwatchesData[keyA] || 'Unknown';
-            const hexColor = colorSwatchesData[keyB] || '#FFFFFF';
-            
-            // Format the key and value in a standardized way
-            // Use a standard naming convention for the property keys
-            const propertyKey = `Color_${colorKey.replace(/[^a-zA-Z0-9]/g, '')}`;
-            const propertyValue = `${colorName} (${hexColor})`;
-            
-            // Add to properties object
-            colorProperties[propertyKey] = propertyValue;
-          });
-          
-          // Find all cart items that need to be updated
-          // We'll use fetch API to send these properties to the cart
-          const cartUpdate = { updates: {}, properties: colorProperties };
-          
-          // Save color selections to cart
-          fetch('/cart/update.js', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ attributes: colorProperties })
-          })
-          .then(response => response.json())
-          .then(cart => {
-            console.log('Cart updated with color properties:', cart);
-            // Dispatch the checkout event after saving colors to cart
-            const checkoutEvent = new CustomEvent('selected-options-checkout', {
-              detail: { colorProperties: colorProperties }
-            });
-            document.dispatchEvent(checkoutEvent);
-          })
-          .catch(error => {
-            console.error('Error updating cart with color properties:', error);
-            // Still dispatch the checkout event even if there was an error
-            const checkoutEvent = new CustomEvent('selected-options-checkout');
-            document.dispatchEvent(checkoutEvent);
-          });
-        });
-      }
-    };
-    
-    // Public method to update display when state changes
-    window.updateSelectedOptionsDisplay = function(colorSwatchesData, appState) {
-      const selectedColorsGrid = document.getElementById('selected-colors-grid');
-      if (selectedColorsGrid && appState && colorSwatchesData) {
-        selectedColorsGrid.innerHTML = '';
-        
-        // Get color keys (C5, C4, C3, C2, C1, BG)
-        const colorKeys = Object.keys(appState.colorValues);
-        
-        // For each color, create a color item
-        colorKeys.forEach(colorKey => {
-          const colorValue = appState.colorValues[colorKey];
-          const keyA = `A${colorValue}`;
-          const keyB = `B${colorValue}`;
-          
-          const colorName = colorSwatchesData[keyA] || 'Unknown';
-          const hexColor = colorSwatchesData[keyB] || '#FFFFFF';
-          
-          const colorItem = document.createElement('div');
-          colorItem.className = 'color-item';
-          
-          const colorSwatch = document.createElement('div');
-          colorSwatch.className = 'color-swatch';
-          colorSwatch.style.backgroundColor = hexColor;
-          
-          const colorNameSpan = document.createElement('span');
-          colorNameSpan.className = 'color-name';
-          colorNameSpan.textContent = `${colorKey}: ${colorName}`;
-          
-          colorItem.appendChild(colorSwatch);
-          colorItem.appendChild(colorNameSpan);
-          selectedColorsGrid.appendChild(colorItem);
-        });
-      }
     };
   });
-</script> 
+</script>
