@@ -12,6 +12,7 @@
           const levelItem = document.createElement('div');
           levelItem.className = 'level-item active'; // Default to active
           levelItem.setAttribute('data-level', product.level);
+          levelItem.style.display = 'block'; // Ensure the item is visible by default
 
           const levelName = document.createElement('span');
           levelName.textContent = product.name;
@@ -30,37 +31,39 @@
 
           // Add click handler for remove button
           removeButton.addEventListener('click', function () {
-          const level = this.getAttribute('data-level');
-          const levelEvent = new CustomEvent('selected-options-remove-level', {
-            detail: { level: parseInt(level) },
-          });
-          document.dispatchEvent(levelEvent);
+            const level = this.getAttribute('data-level');
+            const levelEvent = new CustomEvent('selected-options-remove-level', {
+              detail: { level: parseInt(level) },
+            });
+            document.dispatchEvent(levelEvent);
 
-          // Toggle visibility instead of removing the button
-          if (levelItem.classList.contains('inactive')) {
-            levelItem.classList.remove('inactive');
-            levelItem.classList.add('active');
-            this.innerHTML = `
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="15" y1="9" x2="9" y2="15"></line>
-                <line x1="9" y1="9" x2="15" y2="15"></line>
-              </svg>
-            `;
-            this.setAttribute('aria-label', `Remove ${product.name}`);
-          } else {
-            levelItem.classList.remove('active');
-            levelItem.classList.add('inactive');
-            this.innerHTML = `
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="15" y1="9" x2="9" y2="15"></line>
-                <line x1="9" y1="9" x2="15" y2="15"></line>
-              </svg>
-            `;
-            this.setAttribute('aria-label', `Reactivate ${product.name}`);
-          }
-        });
+            // Toggle visibility and state
+            if (levelItem.classList.contains('inactive')) {
+              levelItem.classList.remove('inactive');
+              levelItem.classList.add('active');
+              levelItem.style.display = 'block'; // Ensure the item is visible
+              this.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="15" y1="9" x2="9" y2="15"></line>
+                  <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>
+              `;
+              this.setAttribute('aria-label', `Remove ${product.name}`);
+            } else {
+              levelItem.classList.remove('active');
+              levelItem.classList.add('inactive');
+              levelItem.style.display = 'block'; // Keep the item visible but styled as inactive
+              this.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="15" y1="9" x2="9" y2="15"></line>
+                  <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>
+              `;
+              this.setAttribute('aria-label', `Reactivate ${product.name}`);
+            }
+          });
 
           levelItem.appendChild(levelName);
           levelItem.appendChild(removeButton);
